@@ -49,7 +49,7 @@ export class PostResolver {
 // native delete not working
   @Mutation(() => Boolean)
   async deletePost(
-      @Arg('id', () => Int) id: number,
+      @Arg('id') id: number,
       @Ctx() { em }: MyContext): Promise<boolean> {
           await em.nativeDelete(Post, { id })
           return true

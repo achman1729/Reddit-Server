@@ -8,7 +8,7 @@ export class User {
 
   @Field()
   @PrimaryKey()
-  id!: number;
+  id!: number;    //  ! means non-nullable
 
   @Field(() => String)
   @Property({type: 'date'})

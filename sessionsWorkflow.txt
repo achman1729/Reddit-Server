@@ -1,0 +1,19 @@
+req.session.userId = user.id;
+
+{user.id} => send that to redis
+
+// redis is a key value store key -> data
+
+1. sess:qwqwoeiuffask;jdfhas -> { userId: 1}
+
+2. express-session will set a cookie(signed key) in the browser iaosdhflksjhfreiwuhrfwe98rfsdhv
+
+// when the user makes a request
+
+3. iaosdhflksjhfreiwuhrfwe98rfsdhv -> sent to the server to
+
+// decrpt the cookie with secret provided
+4. iaosdhflksjhfreiwuhrfwe98rfsdhv -> sess:qwqwoeiuffask;jdfhas
+
+// make a request to redis
+5. sess:qwqwoeiuffask;jdfhas -> { userId: 1}

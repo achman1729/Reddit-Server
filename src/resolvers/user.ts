@@ -6,6 +6,7 @@ import {
   Field,
   Ctx,
   ObjectType,
+  Query,
 } from "type-graphql"
 import { MyContext } from "../types"
 import { User } from "../entities/User"
@@ -40,6 +41,16 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  @Query(() => User, { nullable: true})
+  async me(@Ctx() { req, em }: MyContext) {
+    if (!req.session.userId) {
+      return null
+    }else {
+      const user = await em.findOne(User, {id: req.session.userId})
+      return user
+    }
+  }
+
   @Mutation(() => UserResponse)
   async register(
     @Arg("options") options: UsernamePasswordInput,
@@ -92,7 +103,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async login(
     @Arg("options") options: UsernamePasswordInput,
-    @Ctx() { em }: MyContext
+    @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     const user = await em.findOneOrFail(User, { username: options.username })
     if (!user) {
@@ -116,6 +127,9 @@ export class UserResolver {
         ],
       }
     }
+
+    const newLocalSession = (req.session)   //  !is the non-nullable expression
+    newLocalSession.userId = user.id
 
     return {
       user,
