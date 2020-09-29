@@ -43,7 +43,7 @@ class UserResponse {
 export class UserResolver {
   @Query(() => User, { nullable: true})
   async me(@Ctx() { req, em }: MyContext) {
-    if (!req.session.userId) {
+    if (!req.session?.userId) {
       return null
     }else {
       const user = await em.findOne(User, {id: req.session.userId})
@@ -84,7 +84,7 @@ export class UserResolver {
     try {
         await em.persistAndFlush(user)
     } catch (err) {
-        if(err.detail.includes("already exists")) {
+        if(err.detail?.includes("already exists")) {
             // duplicate username error
             return {
                 error: [
@@ -127,9 +127,9 @@ export class UserResolver {
         ],
       }
     }
-
-    const newLocalSession = (req.session)   //  !is the non-nullable expression
-    newLocalSession.userId = user.id
+    //  !is the non-nullable expression
+    if (req.session)
+      req.session.userId = user.id
 
     return {
       user,

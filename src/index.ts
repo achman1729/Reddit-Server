@@ -11,7 +11,7 @@ import "reflect-metadata"
 import redis from "redis"
 import session from "express-session"
 import connectRedis from "connect-redis"
-import { MyContext } from "./types"
+import cors from 'cors'
 
 
 const main = async () => {
@@ -38,6 +38,12 @@ const main = async () => {
         no_ready_check: true,
         auth_pass: "Man@12345",
     })
+    app.use(
+        cors({ 
+        origin: 'http://localhost:3000',
+        credentials: true
+        })
+    )
     
     // run the session before the apollo middelware
     // the session needs to be used in the apollo middleware
@@ -51,10 +57,10 @@ const main = async () => {
               disableTouch: true            
             }),
             cookie: {
-                maxAge: 1000 * 60 *60 * 24,     //  1 day
+                maxAge: 1000 * 60 *60 * 24 * 365,     //  1 year
                 httpOnly: true,
-                sameSite: "lax",     //  protecting CSRF
-                secure: false,   //cookie only works in HTTPS if set to true. Setting it to prod
+                sameSite: 'lax',     //  protecting CSRF
+                secure: __prod__,   //cookie only works in HTTPS if set to true. Setting it to prod
             },
           secret: 'alksjdfhak;jsldhflkajshdf',
           resave: false,
@@ -69,10 +75,12 @@ const main = async () => {
         }),
         // context is an object that is accessible by all the resolvers
         // orm.em has everything
-        context: ({ req, res }): MyContext => ({ em: orm.em, req, res })
+        context: ({ req, res }) => ({ em: orm.em, req, res })
     })
 
-    apolloServer.applyMiddleware({app})
+    apolloServer.applyMiddleware({
+        app, 
+        cors: false})
 
     app.listen(5000, () => {
         console.log('server running on localhost:5000')

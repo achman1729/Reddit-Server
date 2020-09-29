@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@mikro-orm/core");
+const constants_1 = require("./constants");
 const mikro_orm_config_1 = __importDefault(require("./mikro-orm.config"));
 const express_1 = __importDefault(require("express"));
 const apollo_server_express_1 = require("apollo-server-express");
@@ -24,6 +25,7 @@ require("reflect-metadata");
 const redis_1 = __importDefault(require("redis"));
 const express_session_1 = __importDefault(require("express-session"));
 const connect_redis_1 = __importDefault(require("connect-redis"));
+const cors_1 = __importDefault(require("cors"));
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const orm = yield core_1.MikroORM.init(mikro_orm_config_1.default);
     yield orm.getMigrator().up();
@@ -34,6 +36,10 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         no_ready_check: true,
         auth_pass: "Man@12345",
     });
+    app.use(cors_1.default({
+        origin: 'http://localhost:3000',
+        credentials: true
+    }));
     app.use(express_session_1.default({
         name: 'qid',
         store: new RedisStore({
@@ -41,10 +47,10 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             disableTouch: true
         }),
         cookie: {
-            maxAge: 1000 * 60 * 60 * 24,
+            maxAge: 1000 * 60 * 60 * 24 * 365,
             httpOnly: true,
-            sameSite: "lax",
-            secure: false,
+            sameSite: 'lax',
+            secure: constants_1.__prod__,
         },
         secret: 'alksjdfhak;jsldhflkajshdf',
         resave: false,
@@ -57,7 +63,10 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         }),
         context: ({ req, res }) => ({ em: orm.em, req, res })
     });
-    apolloServer.applyMiddleware({ app });
+    apolloServer.applyMiddleware({
+        app,
+        cors: false
+    });
     app.listen(5000, () => {
         console.log('server running on localhost:5000');
     });

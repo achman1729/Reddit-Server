@@ -19,7 +19,7 @@ export class PostResolver {
     return em.findOne(Post, { id })
   }
 
-  // Mutations are for writing and deleting data
+  // Mutations are for writing/deleting/updating data
 
   @Mutation(() => Post)
   async createPost(
@@ -46,7 +46,7 @@ export class PostResolver {
       }
     return post
   }
-// native delete not working
+  
   @Mutation(() => Boolean)
   async deletePost(
       @Arg('id') id: number,
